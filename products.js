@@ -1,0 +1,10 @@
+window.kishKidsProducts = [
+  { id: 'cotton-set', name: 'Knitted baby romper', category: 'clothing', label: 'A LITTLE FAVOURITE', price: 1850, image: 'https://images.unsplash.com/photo-1622290319146-7b63df48a635?auto=format&fit=crop&w=700&q=82', alt: 'A white and blue baby onesie' },
+  { id: 'tiny-romper', name: 'Little day-out outfit', category: 'clothing', label: 'NEW LITTLE LOOK', price: 1450, image: 'https://images.unsplash.com/photo-1560506840-ec148e82a604?auto=format&fit=crop&w=700&q=82', alt: 'A selection of colourful long-sleeved baby clothes' },
+  { id: 'plush-friend', name: 'Building blocks set', category: 'toys', label: 'PLAYTIME PICK', price: 1200, image: 'https://images.unsplash.com/photo-1484820540004-14229fe36ca4?auto=format&fit=crop&w=700&q=82', alt: 'Colourful toys and playthings for children' },
+  { id: 'playtime-toy', name: 'Wooden road play set', category: 'toys', label: 'LITTLE WORLD', price: 950, image: 'https://images.unsplash.com/photo-1537655780520-1e392ead81f2?auto=format&fit=crop&w=700&q=82', alt: 'Little hands exploring a playful activity' },
+  { id: 'snuggle-blanket', name: 'Muslin swaddle blanket', category: 'care', label: 'EXTRA COSY', price: 2400, image: 'https://images.unsplash.com/photo-1544126592-807ade215a0b?auto=format&fit=crop&w=700&q=82', alt: 'A peaceful newborn resting in a soft blanket' },
+  { id: 'baby-care', name: 'Newborn cuddle blanket', category: 'care', label: 'SOFT & GENTLE', price: 1600, image: 'https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&w=700&q=82', alt: 'A calm and cosy nursery for a little one' },
+  { id: 'welcome-gift', name: 'Welcome baby gift box', category: 'gifts', label: 'READY TO GIFT', price: 3200, image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=700&q=82', alt: 'A bright and cheerful celebration for a little one' },
+  { id: 'keepsake-box', name: 'Keepsake gift bundle', category: 'gifts', label: 'MADE FOR GIVING', price: 2750, image: 'https://images.unsplash.com/photo-1513883049090-d0b7439799bf?auto=format&fit=crop&w=700&q=82', alt: 'A thoughtfully wrapped present with a ribbon' },
+];
