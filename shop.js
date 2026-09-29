@@ -67,7 +67,7 @@ function renderCart() {
     return total + (product ? product.price * item.quantity : 0);
   }, 0);
   document.querySelectorAll('.cart-count').forEach((counter) => { counter.textContent = totalQuantity; });
-  document.querySelector('.cart-trigger').setAttribute('aria-label', `Open shopping bag, ${totalQuantity} items`);
+  document.querySelector('.cart-trigger').setAttribute('aria-label', `Open cart, ${totalQuantity} items`);
   cartEmpty.hidden = totalQuantity > 0;
   cartFooter.hidden = totalQuantity === 0;
   cartItems.innerHTML = cart.map((item) => {

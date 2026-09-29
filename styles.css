@@ -171,6 +171,7 @@ h1, h2, h3, p { margin-top: 0; }
 .site-footer > p span { color: #e9c89b; }
 .footer-meta { grid-column: 1 / -1; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.15); display: flex; align-items: center; justify-content: space-between; color: #c6d0c1; font-size: 9px; }
 .footer-meta a { color: #f0dbaf; }
+.designer-credit strong { color: #f0dbaf; font-weight: 600; }
 .floating-whatsapp { position: fixed; z-index: 9; right: 23px; bottom: 21px; min-height: 47px; display: flex; align-items: center; gap: 9px; padding: 0 17px; border: 1px solid rgba(255,255,255,.5); border-radius: 50px; background: #386b4c; color: white; box-shadow: 0 6px 24px rgba(34,62,42,.27); font-size: 10px; font-weight: 700; transition: transform .2s; }
 .floating-whatsapp:hover { transform: translateY(-3px); }
 .whatsapp-symbol { font-size: 17px; }
@@ -440,6 +441,111 @@ h1, h2, h3, p { margin-top: 0; }
   .review-score { gap: 5px; }
   .review-score > span:last-child { font-size: 7px; }
 }
+
+/* Shared shop-page hero and clear labels over both hero photos */
+.hero-small-caption { position: absolute; right: 7px; bottom: 7px; left: 7px; z-index: 1; padding: 7px 8px; border: 1px solid rgba(255,255,255,.75); border-radius: 6px; background: rgba(255,255,255,.96); color: #3d5142; text-align: center; font-size: 7px; font-weight: 700; line-height: 1.3; }
+.hero-photo-main > img { height: calc(100% - 37px); }
+.hero-photo-caption { right: 0; bottom: 0; left: 0; min-height: 37px; justify-content: center; padding: 7px 10px; border: 0; border-radius: 0; background: #fff; text-align: center; backdrop-filter: none; }
+.hero-photo-small > img { height: calc(100% - 30px); }
+.hero-small-caption { right: 0; bottom: 0; left: 0; min-height: 30px; display: grid; place-items: center; padding: 5px 4px; border: 0; border-radius: 0; background: #fff; font-size: 6px; }
+
+/* Phone power-on sequence before the assistant chat appears */
+.phone-screen { position: relative; background: #111812; transition: background .45s ease; }
+.chat-modal.is-powering-on .phone-screen { background: #050505; }
+.phone-frame:focus { outline: none; }
+.phone-boot { position: absolute; z-index: 3; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; overflow: hidden; border-radius: inherit; background: radial-gradient(ellipse at 50% 43%, #47664a 0, #304b36 42%, #233729 100%); color: white; opacity: 0; transform: scale(.985); transition: opacity .5s ease, transform .65s cubic-bezier(.2,.75,.2,1), background .55s ease; pointer-events: none; }
+.phone-boot::before, .phone-boot::after { position: absolute; width: 210px; height: 210px; border: 1px solid rgba(238,244,226,.12); border-radius: 50%; content: ''; }
+.phone-boot::before { transform: scale(1.35); }
+.phone-boot::after { transform: scale(1.75); }
+.phone-boot-logo { position: relative; z-index: 1; width: 74px; height: 74px; display: grid; place-items: center; overflow: hidden; border: 3px solid rgba(255,255,255,.92); border-radius: 50%; background: #e8ddc7; box-shadow: 0 8px 28px rgba(0,0,0,.22); color: #344b37; font-family: var(--display); font-size: 26px; font-weight: 800; letter-spacing: -4px; }
+.phone-boot-logo > span > span { color: #c3816e; font-size: 21px; }
+.phone-boot-logo .brand-avatar { z-index: 1; }
+.phone-boot-name { position: relative; z-index: 1; display: grid; gap: 4px; color: #fffdf5; font-family: var(--display); font-size: 15px; font-weight: 700; letter-spacing: .12em; text-align: center; }
+.phone-boot-name small { color: #d4dfd0; font-family: var(--sans); font-size: 8px; font-weight: 600; letter-spacing: .26em; }
+.phone-boot-loading { position: relative; z-index: 1; display: flex; gap: 5px; margin-top: 7px; }
+.phone-boot-loading i { width: 5px; height: 5px; border-radius: 50%; background: #dce9cc; animation: phone-boot-pulse .9s ease-in-out infinite alternate; }
+.phone-boot-loading i:nth-child(2) { animation-delay: .18s; }
+.phone-boot-loading i:nth-child(3) { animation-delay: .36s; }
+.chat-modal.is-screen-on .phone-screen { background: #304b36; }
+.chat-modal.is-screen-on .phone-boot { opacity: 1; transform: scale(1); }
+.chat-modal.is-chat-ready .phone-screen { background: #f5f7f1; }
+.chat-app { height: 100%; min-height: 0; display: flex; flex-direction: column; opacity: 0; transform: translateY(7px); transition: opacity .4s ease, transform .45s cubic-bezier(.2,.75,.2,1); }
+.chat-app[hidden] { display: none; }
+.chat-content[hidden], .chat-modal-actions[hidden], .whatsapp-handoff[hidden] { display: none !important; }
+.chat-modal.is-chat-ready .phone-boot { opacity: 0; transform: scale(1.035); }
+.chat-modal.is-chat-ready .chat-app { opacity: 1; transform: translateY(0); }
+.chat-brand-avatar { position: relative; overflow: hidden; flex: 0 0 auto; }
+.chat-brand-avatar > span { position: relative; z-index: 0; }
+.chat-brand-avatar .chat-brand-logo { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.chat-step-guide { display: grid; gap: 7px; margin: 13px 0 4px; padding: 11px 12px; border: 1px solid #e3e9df; border-radius: 9px; background: #fff; }
+.chat-step-guide > strong { margin-bottom: 1px; color: #667365; font-size: 7px; letter-spacing: .1em; }
+.chat-step-guide > div { display: grid; grid-template-columns: 17px 1fr; align-items: start; gap: 7px; }
+.chat-step-guide > div > span { width: 16px; height: 16px; display: grid; place-items: center; border-radius: 50%; background: #e7eee2; color: #385b3d; font-size: 8px; font-weight: 700; }
+.chat-step-guide p { margin: 1px 0 0; color: #606c60; font-size: 8px; line-height: 1.45; }
+.chat-action-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.chat-action-row .chat-assistant-button, .chat-action-row .chat-whatsapp-button { min-width: 0; min-height: 45px; padding: 6px 8px; font-size: 8px; line-height: 1.35; }
+.chat-action-row .chat-whatsapp-button span { padding-right: 3px; font-size: 12px; }
+.whatsapp-handoff { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 11px; overflow-y: auto; padding: 22px 18px; text-align: center; }
+.handoff-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: #e0f1e5; color: #247445; font-size: 24px; }
+.whatsapp-handoff h3 { margin: 0; color: #2d4032; font-size: 16px; }
+.handoff-store-copy { margin: 0; color: #778177; font-size: 9px; }
+.handoff-store-copy strong { color: #405d45; }
+.handoff-message { width: 100%; padding: 12px; border: 1px solid #e3e9df; border-radius: 9px; background: white; color: #5d695e; text-align: left; font-size: 9px; line-height: 1.55; }
+.handoff-open-link { width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 7px; border-radius: 8px; background: #287347; color: #fff; font-size: 9px; font-weight: 700; }
+.handoff-open-link:hover { background: #205c39; }
+.handoff-back { border: 0; border-bottom: 1px solid #9cae9a; background: transparent; color: #4b674e; cursor: pointer; font: inherit; font-size: 9px; font-weight: 600; }
+.whatsapp-handoff > small { max-width: 230px; color: #929a91; font-size: 8px; line-height: 1.5; }
+@keyframes phone-boot-pulse { from { opacity: .28; transform: scale(.78); } to { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .phone-boot, .phone-screen, .chat-app { transition-duration: .01ms; } .phone-boot-loading i { animation: none; } }
+.phone-status-bar { position: absolute; z-index: 5; top: 6px; right: 15px; left: 15px; height: 15px; display: flex; align-items: center; justify-content: space-between; color: #fbfff9; opacity: 0; font-family: Arial, sans-serif; font-size: 8px; font-weight: 700; line-height: 1; transition: color .3s ease, opacity .25s ease; pointer-events: none; }
+.chat-modal.is-screen-on .phone-status-bar { opacity: 1; }
+.chat-modal.is-chat-ready .phone-status-bar { color: #344139; }
+.phone-status-time { font-size: 9px; font-variant-numeric: tabular-nums; }
+.phone-status-icons { display: flex; align-items: center; gap: 5px; height: 12px; }
+.phone-network-bars { height: 10px; display: flex; align-items: end; gap: 1px; }
+.phone-network-bars i { width: 2px; border-radius: 1px 1px 0 0; background: currentColor; }
+.phone-network-bars i:nth-child(1) { height: 3px; }.phone-network-bars i:nth-child(2) { height: 5px; }.phone-network-bars i:nth-child(3) { height: 7px; }.phone-network-bars i:nth-child(4) { height: 9px; }
+.phone-wifi-icon { width: 13px; height: 11px; display: block; }
+.phone-battery { display: inline-flex; align-items: center; gap: 2px; font-size: 7px; }
+.phone-battery svg { width: 17px; height: 10px; display: block; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+.chat-composer { min-height: 51px; display: flex; align-items: center; gap: 8px; padding: 7px 14px 5px; border-top: 1px solid #e9ede6; background: #fff; }
+.chat-composer[hidden], .chat-assistant-note[hidden] { display: none !important; }
+.chat-composer input { width: 100%; min-width: 0; height: 36px; padding: 0 13px; border: 1px solid #dfe6dc; border-radius: 20px; outline: 0; background: #fbfcf9; color: #39483b; font: inherit; font-size: 9px; }
+.chat-composer input::placeholder { color: #9aa298; }
+.chat-composer input:focus { border-color: #9db49a; box-shadow: 0 0 0 2px rgba(117,156,113,.11); }
+.chat-composer > button { width: 35px; height: 35px; flex: 0 0 auto; display: grid; place-items: center; border: 0; border-radius: 50%; background: #34734c; color: #fff; cursor: pointer; transition: background .2s, transform .2s, opacity .2s; }
+.chat-composer > button:hover:not(:disabled) { transform: translateY(-1px); background: #285d3b; }
+.chat-composer > button:disabled { background: #dce6d9; color: #819080; cursor: default; }
+.chat-composer > button svg { width: 17px; height: 17px; }
+.chat-assistant-note { min-height: 18px; padding: 0 15px 5px; background: #fff; color: #9a9f96; text-align: center; font-size: 7px; }
+.user-chat-message { align-self: flex-end; border-radius: 13px 4px 13px 13px; background: #e5efe0; color: #354c38; }
+.whatsapp-confirmation { width: fit-content; max-width: 94%; align-self: flex-start; margin: 8px 0 2px; padding: 9px 11px; border: 1px solid #b8d2b8; border-radius: 8px; background: #edf6e9; color: #315d43; cursor: pointer; font: inherit; font-size: 8px; font-weight: 700; line-height: 1.4; text-align: left; transition: background .2s, border-color .2s; }
+.whatsapp-confirmation:hover { border-color: #86ae86; background: #e2f0dd; }
+.assistant-typing { width: max-content; display: flex; gap: 4px; margin-top: 8px; padding: 10px 12px; border-radius: 4px 12px 12px; background: white; }
+.assistant-typing i { width: 5px; height: 5px; border-radius: 50%; background: #8a9a87; animation: assistant-typing 0.55s ease-in-out infinite alternate; }
+.assistant-typing i:nth-child(2) { animation-delay: .14s; }.assistant-typing i:nth-child(3) { animation-delay: .28s; }
+@keyframes assistant-typing { from { opacity: .35; transform: translateY(1px); } to { opacity: 1; transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .assistant-typing i { animation: none; } }
+
+/* Make full-shop navigation and the full-catalog CTA unmistakable */
+.shop-home-button { min-height: 43px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 15px; border: 1px solid #d6e0d1; border-radius: 99px; background: rgba(255,255,255,.76); color: #355c40; font-size: 10px; font-weight: 700; transition: background .2s, border-color .2s, transform .2s; }
+.shop-home-button:hover { transform: translateY(-2px); border-color: #a8bea5; background: #fff; }
+.shop-home-button > span { font-size: 16px; line-height: 1; }
+.see-all-products { min-height: 76px; margin-top: 18px; padding: 14px 18px; border: 0; border-radius: 10px; background: #315d43; box-shadow: 0 7px 18px rgba(38,75,52,.13); transition: background .2s, transform .2s, box-shadow .2s; }
+.see-all-products:hover { transform: translateY(-2px); border: 0; background: #274e37; box-shadow: 0 10px 22px rgba(38,75,52,.2); }
+.see-all-products .see-all-copy { display: grid; gap: 4px; }
+.see-all-products b { color: #fff; font-size: 12px; }
+.see-all-products small { color: #d7e5d7; font-size: 9px; }
+.see-all-arrow { width: 38px; height: 38px; background: #fff; color: #315d43; font-size: 20px; transition: transform .2s; }
+.see-all-products:hover .see-all-arrow { transform: translateX(3px); }
+@media (max-width: 760px) {
+  .shop-home-button { min-height: 39px; }
+  .see-all-products { min-height: 68px; padding: 12px 14px; }
+}
+.full-shop-page .hero { margin: 0; }
+.full-shop-page .hero-store-link:hover b { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 760px) { .hero-small-caption { right: 5px; bottom: 5px; left: 5px; padding: 6px 4px; font-size: 6px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 
 /* Clear, welcoming storefront styling */
@@ -453,6 +559,7 @@ body { overflow-x: clip; background: #fff; }
 .header-actions { display: flex; align-items: center; gap: 11px; margin-left: 14px; }
 .header-cta { padding: 11px 15px; border-color: #dce4dc; }
 .cart-trigger { min-height: 41px; display: inline-flex; align-items: center; gap: 9px; padding: 0 12px 0 15px; border: 1px solid #dce4dc; border-radius: 99px; background: white; color: var(--ink); cursor: pointer; font-size: 11px; font-weight: 700; }
+.cart-icon { width: 19px; height: 19px; display: block; flex: 0 0 auto; color: #355c40; }
 .cart-count { min-width: 22px; height: 22px; display: inline-grid; place-items: center; padding: 0 5px; border-radius: 99px; background: #edf3ec; color: var(--green); font-size: 10px; font-weight: 700; }
 .menu-toggle { border-color: #dce4dc; }
 .hero { min-height: 540px; padding-top: 55px; padding-bottom: 55px; background: #f1f6ef; }
@@ -661,9 +768,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid #8dbb91; outline-offs
 .chat-backdrop.is-visible { opacity: 1; }
 .chat-modal { position: fixed; z-index: 51; inset: 0; display: grid; place-items: center; padding: 20px; opacity: 0; transition: opacity .24s ease; }
 .chat-modal.is-visible { opacity: 1; }
-.phone-frame { position: relative; width: min(380px, calc(100vw - 30px)); height: min(740px, calc(100dvh - 32px)); min-height: 560px; padding: 10px; border: 1px solid #c6cbc3; border-radius: 40px; background: #1e2922; box-shadow: 0 30px 100px rgba(0,0,0,.34); transform: translateY(12px) scale(.98); transition: transform .24s ease; }
+.phone-frame { position: relative; width: min(380px, calc(100vw - 30px)); height: min(740px, calc(100dvh - 32px)); min-height: 560px; padding: 10px; border: 1px solid #050505; border-radius: 40px; background: #050505; box-shadow: 0 30px 100px rgba(0,0,0,.34); transform: translateY(12px) scale(.98); transition: transform .24s ease; }
 .chat-modal.is-visible .phone-frame { transform: translateY(0) scale(1); }
-.phone-speaker { position: absolute; z-index: 2; top: 15px; left: 50%; width: 77px; height: 16px; transform: translateX(-50%); display: grid; place-items: center; border-radius: 20px; background: #1e2922; }
+.phone-speaker { position: absolute; z-index: 2; top: 15px; left: 50%; width: 77px; height: 16px; transform: translateX(-50%); display: grid; place-items: center; border-radius: 20px; background: #050505; }
 .phone-speaker span { width: 30px; height: 3px; border-radius: 5px; background: #48554b; }
 .phone-screen { height: 100%; display: flex; flex-direction: column; overflow: hidden; border-radius: 31px; background: #f5f7f1; }
 .chat-topbar { min-height: 76px; display: flex; align-items: center; gap: 10px; padding: 22px 17px 9px; background: white; border-bottom: 1px solid #edf0e9; }
@@ -675,6 +782,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #8dbb91; outline-offs
 .chat-brand-details small i { width: 6px; height: 6px; display: inline-block; margin-right: 4px; border-radius: 50%; background: #6bab70; }
 .chat-close { margin-left: auto; font-size: 23px; }
 .chat-content { flex: 1; overflow-y: auto; padding: 16px 15px 12px; }
+.chat-content { display: flex; flex-direction: column; }
 .chat-date { width: max-content; margin: 0 auto 15px; padding: 5px 9px; border-radius: 20px; background: #e8ede5; color: #7b8679; font-size: 7px; font-weight: 700; letter-spacing: .08em; }
 .chat-message { max-width: 92%; padding: 13px 14px; border-radius: 4px 14px 14px 14px; background: white; color: #536055; font-size: 10px; line-height: 1.7; box-shadow: 0 2px 7px rgba(40,54,41,.05); }
 .chat-message strong { color: #2e4935; font-size: 11px; }
@@ -736,3 +844,20 @@ button:focus-visible, a:focus-visible { outline: 3px solid #8dbb91; outline-offs
   .phone-frame { min-height: 0; }
   .chat-content { padding-right: 12px; padding-left: 12px; }
 }
+
+/* Keep hero captions below each photo, never on top of the garments. */
+.hero-photo-main > img { height: calc(100% - 37px); }
+.hero-photo-caption { right: 0; bottom: 0; left: 0; min-height: 37px; display: flex; justify-content: center; padding: 7px 10px; border: 0; border-radius: 0; background: #fff; text-align: center; backdrop-filter: none; }
+.hero-photo-small > img { height: calc(100% - 30px); }
+.hero-small-caption { right: 0; bottom: 0; left: 0; min-height: 30px; display: grid; place-items: center; padding: 5px 4px; border: 0; border-radius: 0; background: #fff; font-size: 6px; }
+
+/* Gentle attention motion on the floating chat button */
+.floating-whatsapp { isolation: isolate; animation: say-hello-float 3.8s ease-in-out infinite; }
+.floating-whatsapp::before { position: absolute; z-index: 0; inset: -4px; border: 1px solid rgba(56,107,76,.5); border-radius: inherit; content: ''; pointer-events: none; animation: say-hello-ring 2.8s ease-out infinite; }
+.floating-whatsapp > * { position: relative; z-index: 1; }
+.floating-whatsapp:hover, .floating-whatsapp:focus-visible { animation-play-state: paused; transform: translateY(-3px); }
+.floating-whatsapp:hover::before, .floating-whatsapp:focus-visible::before { animation-play-state: paused; opacity: .35; transform: scale(.98); }
+.floating-whatsapp:active { transform: scale(.97); }
+@keyframes say-hello-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes say-hello-ring { 0% { opacity: .55; transform: scale(.88); } 75%, 100% { opacity: 0; transform: scale(1.22); } }
+@media (prefers-reduced-motion: reduce) { .floating-whatsapp, .floating-whatsapp::before { animation: none; } }

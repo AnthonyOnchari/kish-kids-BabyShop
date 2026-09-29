@@ -24,7 +24,7 @@ function formatPrice(amount) {
 
 function renderProducts() {
   const visibleProducts = activeCategory === 'all'
-    ? products.slice(0, 4)
+    ? products.slice(0, 5)
     : products.filter((product) => product.category === activeCategory);
 
   document.getElementById('product-grid').innerHTML = visibleProducts.map((product) => `
@@ -60,7 +60,7 @@ function renderCart() {
   document.querySelectorAll('.cart-count').forEach((counter) => {
     counter.textContent = totalQuantity;
   });
-  document.querySelector('.cart-trigger').setAttribute('aria-label', `Open shopping bag, ${totalQuantity} items`);
+  document.querySelector('.cart-trigger').setAttribute('aria-label', `Open cart, ${totalQuantity} items`);
   cartEmpty.hidden = totalQuantity > 0;
   cartFooter.hidden = totalQuantity === 0;
   cartItems.innerHTML = cart.map((item) => {
@@ -130,11 +130,25 @@ document.querySelectorAll('[data-shop-category]').forEach((link) => {
 });
 
 const reviewViewport = document.querySelector('.review-viewport');
+const reviewTrack = reviewViewport.querySelector('.review-cards');
+const originalReviewCards = [...reviewTrack.querySelectorAll('.review-card')];
+originalReviewCards.forEach((card) => {
+  const clone = card.cloneNode(true);
+  clone.classList.add('review-card-clone');
+  clone.setAttribute('aria-hidden', 'true');
+  reviewTrack.append(clone);
+});
 let reviewPauseUntil = 0;
 let reviewLastFrame = 0;
-let reviewDirection = 1;
 let reviewPosition = reviewViewport.scrollLeft;
 let reviewWasPaused = false;
+
+function getReviewLoopWidth() {
+  const firstClone = reviewTrack.querySelector('.review-card-clone');
+  const firstCard = reviewTrack.querySelector('.review-card:not(.review-card-clone)');
+  return firstClone && firstCard ? firstClone.offsetLeft - firstCard.offsetLeft : 0;
+}
+
 function scrollReviews(timestamp) {
   const isPaused = document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches || reviewViewport.matches(':hover') || reviewViewport.contains(document.activeElement) || timestamp <= reviewPauseUntil;
   if (isPaused) {
@@ -143,21 +157,11 @@ function scrollReviews(timestamp) {
     if (reviewWasPaused) reviewPosition = reviewViewport.scrollLeft;
     reviewWasPaused = false;
     const elapsed = Math.min(timestamp - reviewLastFrame, 48);
-    const maxScroll = reviewViewport.scrollWidth - reviewViewport.clientWidth;
-    if (maxScroll > 0) {
-      const nextPosition = reviewPosition + elapsed * 0.035 * reviewDirection;
-      if (nextPosition >= maxScroll) {
-        reviewPosition = maxScroll;
-        reviewViewport.scrollLeft = reviewPosition;
-        reviewDirection = -1;
-      } else if (nextPosition <= 0) {
-        reviewPosition = 0;
-        reviewViewport.scrollLeft = reviewPosition;
-        reviewDirection = 1;
-      } else {
-        reviewPosition = nextPosition;
-        reviewViewport.scrollLeft = reviewPosition;
-      }
+    const loopWidth = getReviewLoopWidth();
+    if (loopWidth > 0) {
+      reviewPosition += elapsed * 0.035;
+      if (reviewPosition >= loopWidth) reviewPosition -= loopWidth;
+      reviewViewport.scrollLeft = reviewPosition;
     }
   }
   reviewLastFrame = timestamp;
@@ -207,10 +211,11 @@ document.querySelector('.checkout-button').addEventListener('click', () => {
 document.querySelectorAll('[data-review-direction]').forEach((button) => {
   button.addEventListener('click', () => {
     const firstCard = reviewViewport.querySelector('.review-card');
-    const gap = Number.parseFloat(getComputedStyle(reviewViewport.querySelector('.review-cards')).columnGap) || 16;
-    const direction = Number(button.dataset.reviewDirection);
-    reviewDirection = direction;
-    reviewViewport.scrollBy({ left: (firstCard.getBoundingClientRect().width + gap) * direction, behavior: 'smooth' });
+    const gap = Number.parseFloat(getComputedStyle(reviewTrack).columnGap) || 16;
+    const step = (firstCard.getBoundingClientRect().width + gap) * Number(button.dataset.reviewDirection);
+    const loopWidth = getReviewLoopWidth();
+    reviewViewport.scrollBy({ left: step, behavior: 'smooth' });
+    if (step < 0 && reviewViewport.scrollLeft <= 0 && loopWidth > 0) reviewViewport.scrollLeft = loopWidth - 1;
     reviewPauseUntil = performance.now() + 3500;
   });
 });
@@ -220,27 +225,94 @@ const chatBackdrop = document.querySelector('.chat-backdrop');
 const chatTrigger = document.querySelector('.floating-whatsapp');
 const chatFollowup = document.querySelector('.chat-followup');
 const chatOptions = document.querySelector('.chat-options');
+const chatApp = document.querySelector('.chat-app');
+const chatContent = document.querySelector('.chat-content');
+const chatActions = document.querySelector('.chat-modal-actions');
+const chatComposer = document.querySelector('.chat-composer');
+const chatReplyInput = document.querySelector('#chat-reply');
+const chatSendButton = chatComposer.querySelector('button[type="submit"]');
+const chatAssistantNote = document.querySelector('.chat-assistant-note');
+const whatsappHandoff = document.querySelector('.whatsapp-handoff');
+const chatStatus = document.querySelector('.chat-brand-details small');
+const chatOpenTimers = [];
+let chatCloseTimer = 0;
+let chatPendingField = '';
+let chatProductInterest = '';
+let chatCustomerSize = '';
+let chatCustomerName = '';
+let chatTranscript = [];
+let chatNeedsHandoffConfirmation = false;
+
+function setChatStatus(message) {
+  chatStatus.lastChild.textContent = ` ${message}`;
+}
 
 function openChat() {
+  window.clearTimeout(chatCloseTimer);
+  chatCloseTimer = 0;
+  chatOpenTimers.forEach(window.clearTimeout);
+  chatOpenTimers.length = 0;
+  chatApp.hidden = true;
+  chatPendingField = '';
+  chatProductInterest = '';
+  chatCustomerSize = '';
+  chatCustomerName = '';
+  chatTranscript = [];
+  chatNeedsHandoffConfirmation = false;
+  chatContent.querySelectorAll('.user-chat-message, .assistant-chat-reply, .assistant-typing').forEach((message) => message.remove());
+  chatFollowup.hidden = true;
+  chatFollowup.textContent = '';
+  document.querySelector('.chat-step-guide').hidden = false;
+  document.querySelector('.chat-options-label').hidden = false;
+  chatOptions.hidden = false;
+  chatContent.scrollTop = 0;
+  chatContent.hidden = false;
+  chatActions.hidden = false;
+  chatComposer.hidden = false;
+  chatAssistantNote.hidden = false;
+  whatsappHandoff.hidden = true;
+  chatReplyInput.value = '';
+  chatSendButton.disabled = true;
+  document.querySelector('#chat-title').textContent = 'Kish Kids';
+  setChatStatus('Here to help');
+  chatModal.classList.remove('is-screen-on', 'is-chat-ready');
+  chatModal.classList.add('is-powering-on');
   chatBackdrop.hidden = false;
   chatModal.hidden = false;
   requestAnimationFrame(() => {
     chatBackdrop.classList.add('is-visible');
     chatModal.classList.add('is-visible');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const logoDelay = reduceMotion ? 0 : 320;
+    const chatDelay = 2500;
+    chatOpenTimers.push(window.setTimeout(() => chatModal.classList.add('is-screen-on'), logoDelay));
+    chatOpenTimers.push(window.setTimeout(() => {
+      chatApp.hidden = false;
+      requestAnimationFrame(() => {
+        chatModal.classList.add('is-chat-ready');
+        chatModal.querySelector('.chat-close').focus();
+      });
+    }, chatDelay));
   });
   chatModal.setAttribute('aria-hidden', 'false');
   document.body.classList.add('chat-open');
-  chatModal.querySelector('.chat-close').focus();
+  chatModal.querySelector('.phone-frame').focus();
 }
 
 function closeChat() {
+  chatOpenTimers.forEach(window.clearTimeout);
+  chatOpenTimers.length = 0;
   chatBackdrop.classList.remove('is-visible');
   chatModal.classList.remove('is-visible');
   chatModal.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('chat-open');
-  window.setTimeout(() => {
+  window.clearTimeout(chatCloseTimer);
+  chatCloseTimer = window.setTimeout(() => {
     chatBackdrop.hidden = true;
     chatModal.hidden = true;
+    chatApp.hidden = true;
+    chatModal.classList.remove('is-powering-on', 'is-screen-on', 'is-chat-ready');
+    chatCloseTimer = 0;
   }, 240);
   chatTrigger.focus();
 }
@@ -248,38 +320,185 @@ function closeChat() {
 chatTrigger.addEventListener('click', openChat);
 chatModal.querySelector('.chat-close').addEventListener('click', closeChat);
 chatBackdrop.addEventListener('click', closeChat);
-chatModal.querySelector('.chat-back').addEventListener('click', () => {
+function showAssistantChat() {
+  if (!whatsappHandoff.hidden) {
+    whatsappHandoff.hidden = true;
+    chatContent.hidden = false;
+    chatActions.hidden = false;
+    chatComposer.hidden = false;
+    chatAssistantNote.hidden = false;
+    document.querySelector('#chat-title').textContent = 'Kish Kids';
+    setChatStatus('Here to help');
+  }
+  const hasConversation = chatContent.querySelector('.user-chat-message');
   chatFollowup.hidden = true;
+  document.querySelector('.chat-step-guide').hidden = Boolean(hasConversation);
+  document.querySelector('.chat-options-label').hidden = false;
   chatOptions.hidden = false;
-});
+}
+
+chatModal.querySelector('.chat-back').addEventListener('click', showAssistantChat);
+chatModal.querySelector('.handoff-back').addEventListener('click', showAssistantChat);
 
 const chatResponses = {
-  products: 'We have little finds for clothing, toys, baby care and gifts. Browse the shop here, or tell us what you are looking for and our team can help.',
+  products: 'What are you looking for: a romper, dress, or another little outfit? Tell me the item and size and I will add it to your message.',
   stores: 'You can visit us at Ambience Mall in Westlands or Gichero Mall in Ruiru. Choose your nearest branch below if you would like to chat on WhatsApp.',
   delivery: 'We can help with delivery enquiries. Tell us what you are looking for and where it needs to go, and our team will confirm the details on WhatsApp.'
 };
+
+function cleanProductInterest(message) {
+  return message.trim()
+    .replace(/^(do you have|have you got|can i get|i need|i want|looking for|show me|find me)\s+/i, '')
+    .replace(/[?!.]+$/, '')
+    .trim() || message.trim();
+}
+
+function getDemoReply(message) {
+  const query = message.toLocaleLowerCase();
+  if (chatPendingField === 'size') {
+    chatCustomerSize = message.trim();
+    chatPendingField = 'name';
+    return `Got it — ${chatCustomerSize}. What name should I put on your enquiry?`;
+  }
+  if (chatPendingField === 'name') {
+    chatCustomerName = message.trim().replace(/^(my name is|name is|i am|i'm)\s+/i, '').slice(0, 60);
+    if (!chatCustomerName) return 'Please type the name you would like us to use for your enquiry.';
+    chatPendingField = '';
+    chatNeedsHandoffConfirmation = true;
+    return `Thanks, ${chatCustomerName}! I have ${chatProductInterest || 'your item'} in size ${chatCustomerSize}. Would you like me to send this chat to our WhatsApp team?`;
+  }
+  if (chatPendingField === 'product') {
+    chatProductInterest = cleanProductInterest(message);
+    chatPendingField = 'size';
+    const sizeMatch = query.match(/\b(?:size\s*)?(newborn|\d{1,2}(?:\s*[-/]\s*\d{1,2})?)\b/i);
+    if (sizeMatch) {
+      chatCustomerSize = sizeMatch[1];
+      chatPendingField = 'name';
+      return `I have noted ${chatProductInterest} in size ${chatCustomerSize}. What name should I put on your enquiry?`;
+    }
+    return `I can help with ${chatProductInterest}. What size or age are you looking for?`;
+  }
+  if (/dress|romper|onesie|clothes|clothing|outfit|size|age/.test(query)) {
+    chatProductInterest = cleanProductInterest(message);
+    const sizeMatch = query.match(/\b(?:size\s*)?(newborn|\d{1,2}(?:\s*[-/]\s*\d{1,2})?)\b/i);
+    if (sizeMatch) {
+      chatCustomerSize = sizeMatch[1];
+      chatPendingField = 'name';
+      return `I can help with that. I have ${chatProductInterest} in size ${chatCustomerSize}. What name should I put on your enquiry?`;
+    }
+    chatPendingField = 'size';
+    return `I can help with little outfits. What size or age do you need for ${chatProductInterest}?`;
+  }
+  if (/blanket|swaddle|care|newborn|sleep/.test(query)) {
+    return 'For baby-care essentials, we have cosy blanket and swaddle ideas. Tell me what you need, and the Westlands or Ruiru team can confirm current availability.';
+  }
+  if (/gift|present|hamper/.test(query)) {
+    return 'We would love to help you find a gift. Are you shopping for a newborn, a birthday, or another special little moment?';
+  }
+  if (/delivery|deliver|send|shipping/.test(query)) {
+    return 'For delivery, tell us your area and what you would like to order. The team will confirm delivery options and any charges on WhatsApp.';
+  }
+  if (/where|location|store|westlands|ruiru|mall|address/.test(query)) {
+    return 'You can visit us at Ambience Mall in Westlands or Gichero Mall in Ruiru. Choose your nearest store below and continue on WhatsApp for directions or availability.';
+  }
+  return 'Thanks for your message! I can help with clothing, baby care, gifts, delivery or store locations. Choose a topic above, or continue on WhatsApp to speak with the Kish Kids team.';
+}
+
+function openWhatsAppHandoff() {
+  const store = document.querySelector('#chat-store').value;
+  const phone = store === 'ruiru' ? '254110662301' : '254141848233';
+  const storeName = store === 'ruiru' ? 'Ruiru' : 'Westlands';
+  const details = [
+    chatCustomerName ? `Customer name: ${chatCustomerName}` : '',
+    chatProductInterest ? `Looking for: ${chatProductInterest}` : '',
+    chatCustomerSize ? `Size: ${chatCustomerSize}` : '',
+  ].filter(Boolean);
+  const conversation = chatTranscript.slice(-8).map((turn) => `${turn.role}: ${turn.text.slice(0, 180)}`);
+  const message = [
+    `Hi Kish Kids ${storeName}! Please help me with my enquiry.`,
+    ...details,
+    conversation.length ? `Chat so far:\n${conversation.join('\n')}` : '',
+  ].filter(Boolean).join('\n\n');
+  document.querySelector('.handoff-store-name').textContent = storeName;
+  document.querySelector('.handoff-message').textContent = message;
+  document.querySelector('.handoff-open-link').href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  chatContent.hidden = true;
+  chatActions.hidden = true;
+  chatComposer.hidden = true;
+  chatAssistantNote.hidden = true;
+  whatsappHandoff.hidden = false;
+  setChatStatus('WhatsApp handoff');
+  whatsappHandoff.querySelector('.handoff-open-link').focus();
+}
+
+chatReplyInput.addEventListener('input', () => {
+  chatSendButton.disabled = !chatReplyInput.value.trim();
+});
+
+chatComposer.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const message = chatReplyInput.value.trim();
+  if (!message) return;
+
+  chatTranscript.push({ role: 'You', text: message });
+  chatReplyInput.value = '';
+  chatSendButton.disabled = true;
+  document.querySelector('.chat-step-guide').hidden = true;
+  document.querySelector('.chat-options-label').hidden = true;
+  chatOptions.hidden = true;
+
+  const userBubble = document.createElement('div');
+  userBubble.className = 'chat-message user-chat-message';
+  userBubble.textContent = message;
+  chatContent.append(userBubble);
+
+  const typing = document.createElement('div');
+  typing.className = 'assistant-typing';
+  typing.setAttribute('role', 'status');
+  typing.setAttribute('aria-label', 'Kish Kids assistant is typing');
+  typing.innerHTML = '<i></i><i></i><i></i>';
+  chatContent.append(typing);
+  chatContent.scrollTop = chatContent.scrollHeight;
+
+  window.setTimeout(() => {
+    typing.remove();
+    const replyText = getDemoReply(message);
+    chatTranscript.push({ role: 'Kish Kids', text: replyText });
+    const reply = document.createElement('div');
+    reply.className = 'chat-message bot-message assistant-chat-reply';
+    reply.textContent = replyText;
+    chatContent.append(reply);
+    if (chatNeedsHandoffConfirmation) {
+      const confirmation = document.createElement('button');
+      confirmation.className = 'whatsapp-confirmation';
+      confirmation.type = 'button';
+      confirmation.textContent = 'Okay — send this chat to WhatsApp';
+      confirmation.addEventListener('click', openWhatsAppHandoff);
+      chatContent.append(confirmation);
+      chatNeedsHandoffConfirmation = false;
+    }
+    chatContent.scrollTop = chatContent.scrollHeight;
+  }, 650);
+});
 
 document.querySelectorAll('[data-chat-topic]').forEach((button) => {
   button.addEventListener('click', () => {
     chatFollowup.textContent = chatResponses[button.dataset.chatTopic];
     chatFollowup.hidden = false;
     chatOptions.hidden = true;
+    chatTranscript.push({ role: 'Kish Kids', text: chatResponses[button.dataset.chatTopic] });
+    if (button.dataset.chatTopic === 'products') chatPendingField = 'product';
   });
 });
 
 document.querySelector('.chat-assistant-button').addEventListener('click', () => {
-  chatFollowup.textContent = 'Great, I am here to help! Choose one of the options above, or browse our little finds in the shop. Our WhatsApp team can also confirm stock and delivery.';
+  chatFollowup.textContent = 'Great, I am here to help! Choose one of the options above or type your question below. Our WhatsApp team can also confirm stock and delivery.';
   chatFollowup.hidden = false;
   chatOptions.hidden = false;
+  chatTranscript.push({ role: 'Kish Kids', text: chatFollowup.textContent });
 });
 
-document.querySelector('.chat-whatsapp-button').addEventListener('click', () => {
-  const store = document.querySelector('#chat-store').value;
-  const phone = store === 'ruiru' ? '254110662301' : '254141848233';
-  const storeName = store === 'ruiru' ? 'Ruiru' : 'Westlands';
-  const message = `Hi Kish Kids ${storeName}! I would like to ask about your products, store or delivery. Can you help me please?`;
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
-});
+document.querySelector('.chat-whatsapp-button').addEventListener('click', openWhatsAppHandoff);
 
 menuButton.addEventListener('click', () => {
   const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
@@ -300,9 +519,14 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && cartDrawer.classList.contains('is-open')) closeCart();
   if (event.key === 'Escape' && chatModal.classList.contains('is-visible')) closeChat();
   if (event.key === 'Tab' && chatModal.classList.contains('is-visible')) {
-    const focusable = [...chatModal.querySelectorAll('button:not([disabled]), select')].filter((element) => !element.closest('[hidden]'));
+    const focusable = [...chatModal.querySelectorAll('button:not([disabled]), select, a[href]')].filter((element) => !element.closest('[hidden]'));
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
+    if (!first || !last) {
+      event.preventDefault();
+      chatModal.querySelector('.phone-frame').focus();
+      return;
+    }
     if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
       last.focus();
@@ -313,11 +537,17 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-document.querySelectorAll('.brand-avatar').forEach((avatar) => {
+document.querySelectorAll('.brand-avatar, .chat-brand-logo').forEach((avatar) => {
   avatar.addEventListener('error', () => avatar.remove());
 });
 
 document.getElementById('year').textContent = new Date().getFullYear();
+const phoneTime = document.getElementById('phone-time');
+function updatePhoneTime() {
+  phoneTime.textContent = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date());
+}
+updatePhoneTime();
+window.setInterval(updatePhoneTime, 30000);
 document.querySelectorAll('.category-tab').forEach((tab) => tab.setAttribute('aria-pressed', String(tab.classList.contains('is-active'))));
 renderProducts();
 renderCart();
